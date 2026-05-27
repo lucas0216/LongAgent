@@ -94,6 +94,7 @@ LongAgent/
 | [08 商业模式](docs/08-business-model.md) | 三层用户模型、单元经济 |
 | [09 路线图](docs/09-roadmap.md) | 4 个月 MVP 节奏 |
 | [10 风险登记](docs/10-risk-register.md) | 已知风险与缓解策略 |
+| [11 UI Wireframes](docs/11-ui-wireframes.md) | 3 个核心页面布局、组件、状态机 |
 | [ADR](docs/adr/) | 架构决策记录（不可变历史）|
 
 ## 核心决策速览
