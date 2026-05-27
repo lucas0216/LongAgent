@@ -45,8 +45,14 @@ pub fn run() {
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
-                let state = window.state::<AppState>();
-                if let Some(handle) = state.sidecar.lock().unwrap().take() {
+                // 显式作用域：先把 handle 从 State 里 take 出来，再 drop 掉锁与 State，
+                // 然后执行 shutdown。避免 MutexGuard 借用比 State 活得久（E0597）。
+                let handle_opt: Option<SidecarHandle> = {
+                    let state = window.state::<AppState>();
+                    let mut guard = state.sidecar.lock().unwrap();
+                    guard.take()
+                };
+                if let Some(handle) = handle_opt {
                     handle.shutdown();
                 }
             }

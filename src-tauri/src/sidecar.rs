@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use serde::Deserialize;
+use std::net::TcpListener;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
@@ -24,7 +25,7 @@ struct HealthResponse {
 }
 
 pub async fn start_sidecar() -> Result<SidecarHandle> {
-    let port = portpicker::pick_unused_port().context("failed to find a free TCP port")?;
+    let port = pick_free_port_on_loopback()?;
     let paths = resolve_sidecar_paths()?;
 
     tracing::info!(
@@ -84,6 +85,26 @@ pub async fn health_check(port: u16) -> Result<String> {
         .await
         .context("failed to parse health response")?;
     Ok(resp.version)
+}
+
+/// 在 127.0.0.1 上找一个空闲 TCP 端口。
+///
+/// 用裸 TcpListener 而非 `portpicker` crate，因为：
+/// 1. 我们只需要 TCP（FastAPI 是 HTTP），不需要 UDP
+/// 2. 我们只在 loopback 上监听，不绑 0.0.0.0
+/// 3. portpicker 在沙箱化容器里因 UDP/UNSPECIFIED 限制经常失败
+///
+/// 这里有一个理论上的 TOCTOU 竞态：drop(listener) 后端口可能被别人抢占。
+/// 但实际上极少发生，且 sidecar 启动失败会被上层捕获并重试。
+fn pick_free_port_on_loopback() -> Result<u16> {
+    let listener = TcpListener::bind("127.0.0.1:0")
+        .context("failed to bind to 127.0.0.1 to pick a free port")?;
+    let port = listener
+        .local_addr()
+        .context("failed to read bound local address")?
+        .port();
+    drop(listener);
+    Ok(port)
 }
 
 struct SidecarPaths {
