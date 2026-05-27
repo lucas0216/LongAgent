@@ -57,6 +57,23 @@ npm run tauri:dev
 
 **期望结果**：窗口打开后约 2 秒看到 **"✅ Sidecar 已连接"**，下方显示 Port / PID / Version。
 
+### 验证云端 LLM 缓存命中率（M1 关键里程碑）
+
+按 [07-成本](docs/07-model-routing-cost.md)，缓存命中率必须 > 70% 才能支撑商业模式。在你拿到 API key 后跑：
+
+```bash
+# 用 DeepSeek 官方
+export DEEPSEEK_API_KEY=sk-xxxxxxxx
+./sidecar/.venv/bin/python scripts/verify_cache.py
+
+# 或火山方舟（需先在控制台创建 endpoint）
+export VOLCANO_API_KEY=xxx
+export LONGAGENT_VOLCANO_MODEL=ep-2026xxxx-xxxxx
+./sidecar/.venv/bin/python scripts/verify_cache.py --provider volcano
+```
+
+期望输出末尾看到 `✅ PASS (cache hit rate XX.X% >= target 70%)`。
+
 ### 故障排查
 
 | 现象 | 原因 | 解决 |
