@@ -1,8 +1,27 @@
 # ADR-0002 · Agent 层用 Python sidecar 而不是纯 Rust
 
-**状态**：✅ Accepted
+**状态**：✅ Accepted (Re-confirmed 2026-05-27)
 **日期**：2026-05-27
 **决策者**：产品负责人
+
+## 决策再评估记录（2026-05-27）
+
+在 SDD 文档初稿完成后，对本决策做了深度再评估，结论是**维持原决策**。
+
+考虑过的替代方案：
+
+**B. 纯 Rust**
+- 优势：单语言、包小、启动快、签名简单
+- 拒绝原因：MVP 周期从 4 个月延长到 6-8 个月；中文 OCR 质量妥协（无 PaddleOCR Rust 绑定）；自研 Agent loop 增加风险
+
+**C. Rust 主体 + 独立 CLI 二进制（不是 Python sidecar）**
+- 思路：调 Ollama HTTP、调 PaddleOCR CLI、调 LibreOffice CLI 等独立二进制，绕开 Python 运行时
+- 优势：保留 Rust 大部分优势、避免 PyInstaller 痛点
+- 拒绝原因：PPTX 等复杂 Office 操作仍缺工具链；Agent loop 仍要 Rust 自研；MVP 速度损失 2-3 倍
+
+**最终选 A 的核心理由**：1-2 人小团队 4 个月 MVP，开发速度是最大约束。Python sidecar 的 80-100MB 包大小代价已纳入预算 ([05-tech-architecture.md](../05-tech-architecture.md) 中目标 < 100MB 含模型代理)。
+
+如未来团队规模扩大且产品验证成功，v2.0+ 可重新评估迁移到方案 C。
 
 ## 背景
 
