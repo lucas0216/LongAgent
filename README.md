@@ -95,6 +95,7 @@ LongAgent/
 | [09 路线图](docs/09-roadmap.md) | 4 个月 MVP 节奏 |
 | [10 风险登记](docs/10-risk-register.md) | 已知风险与缓解策略 |
 | [11 UI Wireframes](docs/11-ui-wireframes.md) | 3 个核心页面布局、组件、状态机 |
+| [12 System Prompt 设计](docs/12-system-prompt.md) | Agent 大脑指令的结构与 token 预算（实际文本在 [resources/prompts/system_v1.md](resources/prompts/system_v1.md)）|
 | [ADR](docs/adr/) | 架构决策记录（不可变历史）|
 
 ## 核心决策速览
